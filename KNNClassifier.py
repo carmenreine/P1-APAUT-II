@@ -89,3 +89,11 @@ class KNNClassifier:
             preds.append(pred)
             
         return np.array(preds)
+    
+    def get_params(self, deep=True):
+        return {"k": self.k, "distance_metric": self.distance_metric}
+
+    def set_params(self, **params):
+        for param, value in params.items():
+            setattr(self, param, value)
+        return self
