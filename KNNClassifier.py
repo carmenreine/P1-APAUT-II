@@ -97,3 +97,10 @@ class KNNClassifier:
         for param, value in params.items():
             setattr(self, param, value)
         return self
+    
+    def score(self, X, y):
+        """
+        Devuelve la accuracy del clasificador en los datos dados.
+        """
+        y_pred = self.predict(X)
+        return np.mean(y_pred == y)
