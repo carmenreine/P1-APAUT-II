@@ -19,6 +19,7 @@ class mRMR:
         """
         Inicializa el selector mRMR.
 
+<<<<<<< Updated upstream
         Parámetros
         ----------
         n_features : int
@@ -29,6 +30,15 @@ class mRMR:
         self.n_features = n_features
         self.selected_ = []
         self.selected_features_ = None
+=======
+        Parámetros:+
+        - n_features: Número de características a seleccionar.
+        """
+        if n_features < 1:
+            raise ValueError("n_features debe ser >= 1")
+        self.n_features = n_features
+        self.selected_idx = []
+>>>>>>> Stashed changes
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -41,6 +51,7 @@ class mRMR:
         y : np.ndarray
             Vector de etiquetas objetivo (longitud n_samples).
         """
+<<<<<<< Updated upstream
         X = np.array(X)
         y = np.array(y)
         n_samples, n_features = X.shape
@@ -78,10 +89,39 @@ class mRMR:
         self.selected_features_ = self.selected_
         return self
 
+=======
+        n_samples, n_features = X.shape
+        relevance = mutual_info_regression(X, y, discrete_features="auto")
+
+        selected = []
+        remaining = list(range(n_features))
+
+        # Seleccionamos primero la feature más relevante
+        first = np.argmax(relevance)
+        selected.append(first)
+        remaining.remove(first)
+
+        while len(selected) < self.n_features and remaining:
+            scores = []
+            for j in remaining:
+                redundancy = np.mean([np.corrcoef(X[:, j], X[:, s])[0, 1]**2 
+                                      for s in selected])
+                redundancy = 0 if np.isnan(redundancy) else redundancy
+                score = relevance[j] - redundancy
+                scores.append((score, j))
+            best = max(scores, key=lambda t: t[0])[1]
+            selected.append(best)
+            remaining.remove(best)
+
+        self.selected_idx = selected
+        return self
+    
+>>>>>>> Stashed changes
     def transform(self, X: np.ndarray) -> np.ndarray:
         """
         Devuelve X reducido a las columnas seleccionadas.
         """
+<<<<<<< Updated upstream
         if not self.selected_:
             raise RuntimeError("Debes llamar a fit antes de transform")
         return np.array(X)[:, self.selected_]
@@ -101,4 +141,20 @@ class mRMR:
         """Permite modificar parámetros del modelo."""
         for param, value in params.items():
             setattr(self, param, value)
+=======
+        if not self.selected_idx:
+            raise RuntimeError("Debes llamar a fit antes de transform")
+        return X[:, self.selected_idx]
+    
+    def fit_transform(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return self.fit(X, y).transform(X)
+
+
+    def get_params(self, deep=True):
+        return {"n_features": self.n_features}
+
+    def set_params(self, **params):
+        for key, value in params.items():
+            setattr(self, key, value)
+>>>>>>> Stashed changes
         return self
